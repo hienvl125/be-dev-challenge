@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const { NewBadRequestError, NewUnauthenticatedError, NewUnprocessableEntityError } = require('../errors')
+const logger = require('../utils/winston.util');
 const userService = require('../services/user.service');
 
 const Register = async (req, res) => {
@@ -25,7 +26,7 @@ const Register = async (req, res) => {
 
     res.json({ email: createdUser.email, name: createdUser.name })
   } catch (error) {
-    // TODO: Log error here
+    logger.error('Failed to register user', error);
     throw NewUnprocessableEntityError('Failed to register user')
   }
 }
