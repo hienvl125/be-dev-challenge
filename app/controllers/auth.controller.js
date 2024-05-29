@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const { NewBadRequestError, NewUnauthenticatedError, NewUnprocessableEntityError } = require('../errors')
 const userService = require('../services/user.service');
 
 const Register = async (req, res) => {
@@ -10,9 +11,9 @@ const Register = async (req, res) => {
 
   const { error, value } = registerValidator.validate(req.body);
   if (error) {
-    return res.status(400).json({
-      messages: error.details.map(i => i.message)
-    })
+    throw NewBadRequestError('Invalid parameters', {
+      errorMessages: error.details.map(i => i.message)
+    });
   }
 
   try {
@@ -21,11 +22,11 @@ const Register = async (req, res) => {
       password: value.password,
       name: value.name,
     });
-  
+
     res.json({ email: createdUser.email, name: createdUser.name })
-  } catch (e) {
-    // TODO: Log error from exception
-    res.status(422).json({ messages: ['Something went wrong'] });
+  } catch (error) {
+    // TODO: Log error here
+    throw NewUnprocessableEntityError('Failed to register user')
   }
 }
 
@@ -37,26 +38,21 @@ const Login = async (req, res) => {
 
   const { error, value } = registerValidator.validate(req.body);
   if (error) {
-    return res.status(400).json({
-      messages: error.details.map(i => i.message)
-    })
-  }
-
-  try {
-    const authenticatedUser = await userService.LoginAccount({
-      email: value.email,
-      password: value.password,
+    throw NewBadRequestError('Invalid parameters', {
+      errorMessages: error.details.map(i => i.message)
     });
-  
-    if (!authenticatedUser) {
-      return res.status(401).json({ messages: ['Invalid email or password'] });
-    }
-
-    res.status(200).json(authenticatedUser);
-  } catch (e) {
-    // TODO: Log error from exception
-    res.status(422).json({ messages: ['Something went wrong'] });
   }
+
+  const authenticatedUser = await userService.LoginAccount({
+    email: value.email,
+    password: value.password,
+  });
+
+  if (!authenticatedUser) {
+    throw NewUnauthenticatedError('Invalid email or password');
+  }
+
+  res.status(200).json(authenticatedUser);
 }
 
 module.exports = {
