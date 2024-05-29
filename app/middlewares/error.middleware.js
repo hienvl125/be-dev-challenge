@@ -1,4 +1,5 @@
 const { AppError, NewInternalServerError } = require('../errors');
+const logger = require('../utils/winston.util');
 
 const errorCatcher = (handler) => async (req, res, next) => {
   try {
@@ -16,7 +17,7 @@ const errorHandler = (err, req, res, next) => {
     appErr = NewInternalServerError(err.message)
   }
 
-  // TODO: Log error to stderr
+  logger.error("Catched error", appErr)
   res.status(err.statusCode).json(err.resp);
 };
 
