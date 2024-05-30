@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  node-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - JWT_SECRET=secret
+      - DATABASE_URL=postgresql://postgres:password@db:5432/be-dev-challenge?schema=public
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        npx prisma migrate deploy
+        npx prisma generate
+        npm run start
+  db:
+    image: postgres:14.5
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: be-dev-challenge
+    ports:
+      - 6543:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
