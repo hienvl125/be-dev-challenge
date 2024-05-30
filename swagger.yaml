@@ -1,0 +1,513 @@
+openapi: 3.0.3
+info:
+  title: Swagger Backend Dev Challenge - OpenAPI 3.0
+  version: 1.0.0
+tags:
+  - name: user
+    description: Login and Register
+  - name: weapon
+    description: CRUD weapons of user
+paths:
+  /auth/register:
+    post:
+      tags:
+        - user
+      summary: Register user
+      description: Public API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                name:
+                  type: string
+                  nullable: true
+              required:
+                - email
+                - password
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  name:
+                    type: string
+                    nullable: true
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                example:
+                  errorMessages: ["Email is required", "Password must be at least 6 characters long"]
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                example:
+                  errorMessages: ["Something went wrong"]
+  /auth/login:
+    post:
+      tags:
+        - user
+      summary: Login with credentials
+      description: Public API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+              required:
+                - email
+                - password
+      responses:
+        '201':
+          description: Authenticated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  name:
+                    type: string
+                    nullable: true
+                  accessToken:
+                    type: string
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                example:
+                  errorMessages: ["Invalid email or password"]
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                example:
+                  errorMessages: ["Something went wrong"]
+  /weapons:
+    get:
+      tags:
+        - weapon
+      summary: List all weapons of authenticated user
+      description: Protected API, JWT token (Bearer token) required in header
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number (optional, default is 1)
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 10
+          description: Number of items per page (optional, default is 10)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Weapons listed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        attack:
+                          type: integer
+                        durability:
+                          type: integer
+                        level:
+                          type: integer
+                        created_at:
+                          type: string
+                          format: date-time
+                        updated_at:
+                          type: string
+                          format: date-time
+                        userId:
+                          type: integer
+                  pagination:
+                    type: object
+                    properties:
+                      totalPages:
+                        type: integer
+                      totalItems:
+                        type: integer
+                      isLast:
+                        type: boolean
+                      page:
+                        type: integer
+                      perPage:
+                        type: integer
+                example:
+                  items:
+                    - id: 3
+                      name: "Sword 1"
+                      attack: 10
+                      durability: 50
+                      level: 1
+                      created_at: "2024-05-29T18:23:57.844Z"
+                      updated_at: "2024-05-29T18:23:57.844Z"
+                      userId: 16
+                    - id: 4
+                      name: "Sword 2"
+                      attack: 15
+                      durability: 60
+                      level: 2
+                      created_at: "2024-05-29T18:23:57.844Z"
+                      updated_at: "2024-05-29T18:23:57.844Z"
+                      userId: 16
+                  pagination:
+                    totalPages: 3
+                    totalItems: 5
+                    isLast: false
+                    page: 1
+                    perPage: 2
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  errorMessages: ["Unauthenticated"]
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  errorMessages: ["Something went wrong"]
+    post:
+      tags:
+        - weapon
+      summary: Create a new weapon
+      description: Protected API, JWT token (Bearer token) required in header
+      requestBody:
+        description: Weapon object to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                attack:
+                  type: integer
+                durability:
+                  type: integer
+                level:
+                  type: integer
+                  default: 1
+              required:
+                - name
+                - attack
+                - durability
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Weapon created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  attack:
+                    type: integer
+                  durability:
+                    type: integer
+                  level:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+                  userId:
+                    type: integer
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  errorMessages: ["Name is required", "Attack must be a positive integer"]
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  errorMessages: ["Unauthenticated"]
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  errorMessages: ["Something went wrong"]
+  /weapons/{id}:
+    put:
+      tags:
+        - weapon
+      summary: Update a weapon by ID
+      description: Protected API, JWT token (Bearer token) required in header
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the weapon to be updated
+      requestBody:
+        description: Weapon object to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                attack:
+                  type: integer
+                durability:
+                  type: integer
+                level:
+                  type: integer
+              required:
+                - name
+                - attack
+                - durability
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Weapon updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  attack:
+                    type: integer
+                  durability:
+                    type: integer
+                  level:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+                  userId:
+                    type: integer
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  errorMessages: ["Name is required", "Attack must be a positive integer"]
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  errorMessages: ["Unauthenticated"]
+        '404':
+          description: Weapon not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  errorMessages: ["Weapon not found"]
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  errorMessages: ["Something went wrong"]
+    delete:
+      tags:
+        - weapon
+      summary: Delete a weapon by ID
+      description: Protected API, JWT token (Bearer token) required in header
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the weapon to be deleted
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Weapon deleted successfully
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  errorMessages: ["Unauthenticated"]
+        '404':
+          description: Weapon not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  errorMessages: ["Weapon not found"]
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessages:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  errorMessages: ["Something went wrong"]
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

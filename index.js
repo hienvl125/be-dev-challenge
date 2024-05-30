@@ -5,6 +5,11 @@ const winstonLogger = require('./app/utils/winston.util');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
+const swaggerUi = require('swagger-ui-express');
+const fs = require("fs")
+const YAML = require('yaml')
+
+// swagger
 // middlewares
 const authMiddleware = require('./app/middlewares/auth.middleware');
 const { errorCatcher, errorHandler } = require('./app/middlewares/error.middleware');
@@ -20,6 +25,13 @@ app.use(expressWinston.logger({
   expressFormat: true,
   colorize: false,
 }));
+
+if (envConfig.NODE_ENV !== 'production') {
+  const file = fs.readFileSync('./swagger.yaml', 'utf8')
+  const swaggerDocument = YAML.parse(file)
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+}
+
 app.post('/auth/register', errorCatcher(authController.Register));
 app.post('/auth/login', errorCatcher(authController.Login));
 app.get('/weapons', authMiddleware, errorCatcher(weaponController.Index));
