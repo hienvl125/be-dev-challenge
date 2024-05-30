@@ -10,6 +10,7 @@ const authMiddleware = require('./app/middlewares/auth.middleware');
 const { errorCatcher, errorHandler } = require('./app/middlewares/error.middleware');
 // controllers
 const authController = require('./app/controllers/auth.controller');
+const weaponController = require('./app/controllers/weapon.controller');
 
 app.use(bodyParser.json());
 app.use(expressWinston.logger({
@@ -21,6 +22,11 @@ app.use(expressWinston.logger({
 }));
 app.post('/auth/register', errorCatcher(authController.Register));
 app.post('/auth/login', errorCatcher(authController.Login));
+app.get('/weapons', authMiddleware, errorCatcher(weaponController.Index));
+app.post('/weapons', authMiddleware, errorCatcher(weaponController.Create));
+app.put('/weapons/:id', authMiddleware, errorCatcher(weaponController.Update));
+app.delete('/weapons/:id', authMiddleware, errorCatcher(weaponController.Delete));
+
 
 // error handling
 app.use(errorHandler);
