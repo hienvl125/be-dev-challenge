@@ -1,5 +1,5 @@
-const { UnauthenticatedError } = require('../errors')
-const userService = require('../services/user.service');
+const { UnauthenticatedError } = require('./../errors')
+const userService = require('./../modules/user/user.service');
 
 const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;

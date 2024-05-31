@@ -1,15 +1,9 @@
-const Joi = require('joi');
-const { NewBadRequestError, NewUnauthenticatedError, NewUnprocessableEntityError } = require('../errors')
-const logger = require('../utils/winston.util');
-const userService = require('../services/user.service');
+const { NewBadRequestError, NewUnauthenticatedError, NewUnprocessableEntityError } = require('./../../errors')
+const logger = require('./../../utils/winston.util');
+const { registerValidator, loginValidator } = require('./user.validator');
+const userService = require('./user.service');
 
 const Register = async (req, res) => {
-  const registerValidator = Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().min(6).required(),
-    name: Joi.string().min(3).allow(null).optional(),
-  });
-
   const { error, value } = registerValidator.validate(req.body);
   if (error) {
     throw NewBadRequestError('Invalid parameters', {
@@ -32,12 +26,7 @@ const Register = async (req, res) => {
 }
 
 const Login = async (req, res) => {
-  const registerValidator = Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
-  });
-
-  const { error, value } = registerValidator.validate(req.body);
+  const { error, value } = loginValidator.validate(req.body);
   if (error) {
     throw NewBadRequestError('Invalid parameters', {
       errorMessages: error.details.map(i => i.message)

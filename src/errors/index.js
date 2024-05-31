@@ -5,6 +5,16 @@ const UNAUTHORIZED = 403;
 const UNAUTHENTICATED = 401;
 const UNPROCESSABLE_ENTITY = 422;
 
+const ERROR_TYPES = {
+  [BAD_REQUEST]: 'BAD_REQUEST_ERROR',
+  [NOT_FOUND]: 'NOT_FOUND_ERROR',
+  [INTERNAL_SERVER_ERROR]: 'INTERNAL_SERVER_ERROR',
+  [UNAUTHORIZED]: 'UNAUTHORIZED_ERROR',
+  [UNAUTHENTICATED]: 'UNAUTHENTICATED_ERROR',
+  [UNPROCESSABLE_ENTITY]: 'UNPROCESSABLE_ENTITY_ERROR',
+
+}
+
 const ERROR_MESSAGES = {
   [BAD_REQUEST]: 'Bad Request',
   [NOT_FOUND]: 'Not Found',
@@ -15,15 +25,17 @@ const ERROR_MESSAGES = {
 }
 
 class AppError extends Error {
+  // attributes
+  // - message: String, error message, Not null, For logging, Not Exposable
+  // - statusCode: Number, HTTP status code, Not null, Exposable
+  // - errorType: String, error type, Not null, Exposable
+  // - resp: Object, response body, Nullable, Exposable
   constructor(message, statusCode, resp = null) {
     super(message);
     this.statusCode = statusCode;
+    this.errorType = ERROR_TYPES[statusCode];
     if (resp) {
       this.resp = resp;
-    } else {
-      this.resp = {
-        errorMessages: [ERROR_MESSAGES[statusCode]]
-      }
     }
   }
 }

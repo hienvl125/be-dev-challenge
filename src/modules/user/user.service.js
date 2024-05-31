@@ -1,6 +1,6 @@
-const prismaClient = require('../prisma-client');
-const passwordUtil = require('../utils/password.util');
-const jwtUtil = require('../utils/jwt.util');
+const prismaClient = require('./../../prisma-client');
+const passwordUtil = require('./../../utils/password.util');
+const jwtUtil = require('./../../utils/jwt.util');
 
 const RegisterAccount = async ({ email, password, name }) => {
   const hashedPassword = await passwordUtil.hashPassword(password);
