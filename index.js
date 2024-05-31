@@ -1,47 +1,6 @@
-require('dotenv').config()
-const envConfig = require('./envconfig')
-const expressWinston = require('express-winston');
-const winstonLogger = require('./app/utils/winston.util');
-const express = require('express');
-const bodyParser = require('body-parser');
-const app = express();
-const swaggerUi = require('swagger-ui-express');
-const fs = require("fs")
-const YAML = require('yaml')
-
-// swagger
-// middlewares
-const authMiddleware = require('./app/middlewares/auth.middleware');
-const { errorCatcher, errorHandler } = require('./app/middlewares/error.middleware');
-// controllers
-const authController = require('./app/controllers/auth.controller');
-const weaponController = require('./app/controllers/weapon.controller');
-
-app.use(bodyParser.json());
-app.use(expressWinston.logger({
-  winstonInstance: winstonLogger,
-  meta: true,
-  msg: "HTTP {{req.method}} {{req.url}}",
-  expressFormat: true,
-  colorize: false,
-}));
-
-if (envConfig.NODE_ENV !== 'production') {
-  const file = fs.readFileSync('./swagger.yaml', 'utf8')
-  const swaggerDocument = YAML.parse(file)
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-}
-
-app.post('/auth/register', errorCatcher(authController.Register));
-app.post('/auth/login', errorCatcher(authController.Login));
-app.get('/weapons', authMiddleware, errorCatcher(weaponController.Index));
-app.post('/weapons', authMiddleware, errorCatcher(weaponController.Create));
-app.put('/weapons/:id', authMiddleware, errorCatcher(weaponController.Update));
-app.delete('/weapons/:id', authMiddleware, errorCatcher(weaponController.Delete));
-
-
-// error handling
-app.use(errorHandler);
-app.listen(envConfig.PORT, () => {
-  console.log(`Server is running on http://localhost:${envConfig.PORT}`);
+require('dotenv').config();
+const { PORT } = require('./src/configs');
+const app = require('./app')
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

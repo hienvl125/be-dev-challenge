@@ -1,4 +1,4 @@
-const prismaClient = require('../prisma-client');
+const prismaClient = require('./../../prisma-client');
 
 const ListWeapons = async ({ userId, page, perPage }) => {
   const weapons = await prismaClient.weapon.findMany({
