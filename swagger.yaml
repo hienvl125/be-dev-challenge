@@ -7,6 +7,53 @@ tags:
     description: Login and Register
   - name: weapon
     description: CRUD weapons of user
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  errorResponse:
+    badInputError:
+      description: Bad input error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errorType:
+                type: string
+                enum:
+                  - BAD_REQUEST_ERROR
+                  - NOT_FOUND_ERROR
+                  - INTERNAL_SERVER_ERROR
+                  - UNAUTHORIZED_ERROR
+                  - UNAUTHENTICATED_ERROR
+                  - UNPROCESSABLE_ENTITY_ERROR
+                example: BAD_REQUEST_ERROR
+              errorMessages:
+                type: array
+                example: ["Invalid paramters"]
+    internalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errorType:
+                type: string
+                enum:
+                  - BAD_REQUEST_ERROR
+                  - NOT_FOUND_ERROR
+                  - INTERNAL_SERVER_ERROR
+                  - UNAUTHORIZED_ERROR
+                  - UNAUTHENTICATED_ERROR
+                  - UNPROCESSABLE_ENTITY_ERROR
+                example: INTERNAL_SERVER_ERROR
+              errorMessages:
+                type: array
+                example: ["Something went wrong"]
 paths:
   /auth/register:
     post:
@@ -47,27 +94,9 @@ paths:
                     type: string
                     nullable: true
         '400':
-          description: Invalid parameters
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorMessages:
-                    type: array
-                example:
-                  errorMessages: ["Email is required", "Password must be at least 6 characters long"]
+          $ref: '#/components/errorResponse/badInputError'
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorMessages:
-                    type: array
-                example:
-                  errorMessages: ["Something went wrong"]
+          $ref: '#/components/errorResponse/internalServerError'
   /auth/login:
     post:
       tags:
@@ -106,27 +135,9 @@ paths:
                   accessToken:
                     type: string
         '400':
-          description: Invalid parameters
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorMessages:
-                    type: array
-                example:
-                  errorMessages: ["Invalid email or password"]
+          $ref: '#/components/errorResponse/badInputError'
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorMessages:
-                    type: array
-                example:
-                  errorMessages: ["Something went wrong"]
+          $ref: '#/components/errorResponse/internalServerError'
   /weapons:
     get:
       tags:
@@ -216,32 +227,10 @@ paths:
                     isLast: false
                     page: 1
                     perPage: 2
-        '401':
-          description: Unauthenticated
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorMessages:
-                    type: array
-                    items:
-                      type: string
-                example:
-                  errorMessages: ["Unauthenticated"]
+        '400':
+          $ref: '#/components/errorResponse/badInputError'
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorMessages:
-                    type: array
-                    items:
-                      type: string
-                example:
-                  errorMessages: ["Something went wrong"]
+          $ref: '#/components/errorResponse/internalServerError'
     post:
       tags:
         - weapon
@@ -297,44 +286,9 @@ paths:
                   userId:
                     type: integer
         '400':
-          description: Invalid parameters
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorMessages:
-                    type: array
-                    items:
-                      type: string
-                example:
-                  errorMessages: ["Name is required", "Attack must be a positive integer"]
-        '401':
-          description: Unauthenticated
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorMessages:
-                    type: array
-                    items:
-                      type: string
-                example:
-                  errorMessages: ["Unauthenticated"]
+          $ref: '#/components/errorResponse/badInputError'
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorMessages:
-                    type: array
-                    items:
-                      type: string
-                example:
-                  errorMessages: ["Something went wrong"]
+          $ref: '#/components/errorResponse/internalServerError'
   /weapons/{id}:
     put:
       tags:
@@ -397,45 +351,9 @@ paths:
                   userId:
                     type: integer
         '400':
-          description: Invalid parameters
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorMessages:
-                    type: array
-                    items:
-                      type: string
-                example:
-                  errorMessages: ["Name is required", "Attack must be a positive integer"]
-        '401':
-          description: Unauthenticated
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorMessages:
-                    type: array
-                    items:
-                      type: string
-                example:
-                  errorMessages: ["Unauthenticated"]
-        '404':
-          description: Weapon not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorMessages:
-                    type: array
-                    items:
-                      type: string
-                example:
-                  errorMessages: ["Weapon not found"]
+          $ref: '#/components/errorResponse/badInputError'
         '500':
+          $ref: '#/components/errorResponse/internalServerError'
           description: Internal server error
           content:
             application/json:
@@ -465,49 +383,7 @@ paths:
       responses:
         '204':
           description: Weapon deleted successfully
-        '401':
-          description: Unauthenticated
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorMessages:
-                    type: array
-                    items:
-                      type: string
-                example:
-                  errorMessages: ["Unauthenticated"]
-        '404':
-          description: Weapon not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorMessages:
-                    type: array
-                    items:
-                      type: string
-                example:
-                  errorMessages: ["Weapon not found"]
+        '400':
+          $ref: '#/components/errorResponse/badInputError'
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorMessages:
-                    type: array
-                    items:
-                      type: string
-                example:
-                  errorMessages: ["Something went wrong"]
-
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+          $ref: '#/components/errorResponse/internalServerError'
